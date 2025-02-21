@@ -26,3 +26,4 @@ public class TelemetryController {
     public List<TelemetryData> getTelemetryData() {
         return telemetryRepository.findAll();
     }
+}
