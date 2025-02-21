@@ -70,4 +70,3 @@ public class TelemetryData {
         this.value = value;
     }
 
-}
