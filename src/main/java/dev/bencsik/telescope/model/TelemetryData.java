@@ -69,4 +69,4 @@ public class TelemetryData {
     public void setValue(double value) {
         this.value = value;
     }
-
+}
