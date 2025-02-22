@@ -18,7 +18,6 @@ public class TelemetryController {
 
     @PostMapping
     public TelemetryData storeTelemetry(@RequestBody TelemetryData telemetryData) {
-        System.out.println("Received JSON: " + telemetryData);  // Debugging log
         return telemetryRepository.save(telemetryData);
     }
 
