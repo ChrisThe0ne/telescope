@@ -5,9 +5,10 @@ import dev.bencsik.telescope.repository.ApiKeyRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ApiKeyService {
@@ -26,8 +27,10 @@ public class ApiKeyService {
         ApiKey apiKey = new ApiKey();
         apiKey.setTenantId(tenantId);
         apiKey.setApiKeyHash(hashedApiKey);
-        apiKeyRepository.save(apiKey);
+        apiKey.setRevoked(false);
 
+        apiKeyRepository.save(apiKey);
+        System.out.println("New API Key generated for tenant: " + tenantId);
         return rawApiKey;
     }
 
@@ -37,4 +40,33 @@ public class ApiKeyService {
         random.nextBytes(keyBytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(keyBytes);
     }
+
+    public boolean revokeApiKey(UUID apiKeyId) {
+        Optional<ApiKey> apiKeyOptional = apiKeyRepository.findById(apiKeyId);
+        if (apiKeyOptional.isPresent()) {
+            ApiKey apiKey = apiKeyOptional.get();
+            apiKey.setRevoked(true);
+            apiKeyRepository.save(apiKey);
+            System.out.println("API Key revoked: " + apiKeyId);
+            return true;
+        }
+        System.out.println("API Key not found: " + apiKeyId);
+        return false;
+    }
+
+    public String rotateApiKey(UUID oldApiKeyId) {
+        Optional<ApiKey> oldApiKeyOptional = apiKeyRepository.findById(oldApiKeyId);
+        if (oldApiKeyOptional.isPresent()) {
+            ApiKey oldApiKey = oldApiKeyOptional.get();
+
+            oldApiKey.setRevoked(true);
+            apiKeyRepository.save(oldApiKey);
+            System.out.println("Revoked old API Key: " + oldApiKeyId);
+
+            return generateAndStoreApiKey(oldApiKey.getTenantId());
+        }
+        System.out.println("Old API Key not found: " + oldApiKeyId);
+        return null;
+    }
+
 }
