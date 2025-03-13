@@ -8,7 +8,6 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Optional;
 
 @Component
 public class ApiKeyFilter implements Filter {
@@ -50,7 +49,7 @@ public class ApiKeyFilter implements Filter {
 
         boolean validKey = false;
         for (ApiKey storedKey : apiKeyRepository.findAll()) {
-            System.out.println("🔍 Checking API Key: " + storedKey.getId() + " (Revoked: " + storedKey.isRevoked() + ")");
+            //System.out.println("Checking API Key: " + storedKey.getId() + " (Revoked: " + storedKey.isRevoked() + ")");
             if (!storedKey.isRevoked() && passwordEncoder.matches(apiKey, storedKey.getApiKeyHash())) {
                 validKey = true;
                 break;

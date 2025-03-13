@@ -3,7 +3,6 @@ package dev.bencsik.telescope.controller;
 import dev.bencsik.telescope.service.ApiKeyService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.UUID;
 
 @RestController

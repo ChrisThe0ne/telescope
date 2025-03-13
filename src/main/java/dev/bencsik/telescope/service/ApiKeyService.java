@@ -5,7 +5,6 @@ import dev.bencsik.telescope.repository.ApiKeyRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Optional;
@@ -59,12 +58,15 @@ public class ApiKeyService {
         Optional<ApiKey> oldApiKeyOptional = apiKeyRepository.findById(oldApiKeyId);
         if (oldApiKeyOptional.isPresent()) {
             ApiKey oldApiKey = oldApiKeyOptional.get();
+
             oldApiKey.setRevoked(true);
             apiKeyRepository.save(oldApiKey);
             System.out.println("Revoked old API Key: " + oldApiKeyId);
+
             return generateAndStoreApiKey(oldApiKey.getTenantId());
         }
         System.out.println("Old API Key not found: " + oldApiKeyId);
         return null;
     }
+
 }
