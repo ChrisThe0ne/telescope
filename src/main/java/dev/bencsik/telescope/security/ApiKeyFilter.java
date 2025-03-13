@@ -27,8 +27,12 @@ public class ApiKeyFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String requestUri = httpRequest.getRequestURI();
 
-        // no validation for tenant registration and actuator
-        if (requestUri.equals("/api/tenants/generate-key") || requestUri.startsWith("/actuator")) {
+        // Skip API key validation for tenant management & system endpoints
+        if (requestUri.equals("/api/tenants/generate-key") ||
+                requestUri.equals("/api/tenants/revoke-key") ||
+                requestUri.equals("/api/tenants/rotate-key") ||
+                requestUri.startsWith("/actuator")) {
+
             System.out.println("🔹 Skipping API key check for: " + requestUri);
             chain.doFilter(request, response);
             return;
@@ -44,12 +48,18 @@ public class ApiKeyFilter implements Filter {
             return;
         }
 
-        boolean validKey = apiKeyRepository.findAll().stream()
-                .anyMatch(storedKey -> passwordEncoder.matches(apiKey, storedKey.getApiKeyHash()));
+        boolean validKey = false;
+        for (ApiKey storedKey : apiKeyRepository.findAll()) {
+            System.out.println("🔍 Checking API Key: " + storedKey.getId() + " (Revoked: " + storedKey.isRevoked() + ")");
+            if (!storedKey.isRevoked() && passwordEncoder.matches(apiKey, storedKey.getApiKeyHash())) {
+                validKey = true;
+                break;
+            }
+        }
 
         if (!validKey) {
-            System.out.println("Invalid API Key, rejecting request.");
-            ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid API Key");
+            System.out.println("Invalid or revoked API Key, rejecting request.");
+            ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or revoked API Key");
             return;
         }
 

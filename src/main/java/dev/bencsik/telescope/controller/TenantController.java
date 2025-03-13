@@ -3,6 +3,9 @@ package dev.bencsik.telescope.controller;
 import dev.bencsik.telescope.service.ApiKeyService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/tenants")
 public class TenantController {
@@ -26,5 +29,28 @@ public class TenantController {
 
         System.out.println("Generated API Key: " + newApiKey);
         return "Generated API Key: " + newApiKey;
+    }
+
+    @PatchMapping("/revoke-key")
+    public String revokeApiKey(@RequestParam(name = "apiKeyId") String rawApiKeyId) {
+        System.out.println("🔹 Raw Received API Key ID: " + rawApiKeyId);
+
+        try {
+            UUID apiKeyId = UUID.fromString(rawApiKeyId);
+            System.out.println("Converted API Key ID: " + apiKeyId);
+
+            boolean success = apiKeyService.revokeApiKey(apiKeyId);
+            return success ? "API Key revoked successfully." : "API Key not found.";
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid UUID format received: " + rawApiKeyId);
+            return "Error: Invalid UUID format.";
+        }
+    }
+
+    @PatchMapping("/rotate-key")
+    public String rotateApiKey(@RequestParam UUID oldApiKeyId) {
+        String newApiKey = apiKeyService.rotateApiKey(oldApiKeyId);
+        System.out.println("API key received: " + oldApiKeyId);
+        return (newApiKey != null) ? "New API Key: " + newApiKey : "Old API Key not found.";
     }
 }
