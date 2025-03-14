@@ -29,3 +29,24 @@ spring:
     baseline-on-migrate: true
     validate-on-migrate: false
     ignore-migration-patterns:
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, env, mappings, beans
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    enable:
+      all: true
+  tracing:
+    sampling:
+      probability: 1.0
+
+logging:
+  level:
+    root: INFO
+    web: DEBUG
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
