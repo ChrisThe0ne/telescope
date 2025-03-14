@@ -47,3 +47,6 @@ Thumbs.db
 application.properties
 application.yml
 .env
+
+# Ignore WSL-specific files
+.wslrun
