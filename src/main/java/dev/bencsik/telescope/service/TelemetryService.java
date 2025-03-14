@@ -2,6 +2,7 @@ package dev.bencsik.telescope.service;
 
 import dev.bencsik.telescope.model.TelemetryData;
 import dev.bencsik.telescope.repository.TelemetryRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,7 +19,10 @@ public class TelemetryService {
         this.telemetryRepository = telemetryRepository;
     }
 
+    @Cacheable(value = "telemetryCache", key = "#metricName + '-' + #startDate + '-' + #endDate + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
     public Page<TelemetryData> getFilteredTelemetryData(String metricName, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+        System.out.println("Fetching from DB (cache miss): metric=" + metricName + ", start=" + startDate + ", end=" + endDate);
+
         Specification<TelemetryData> spec = Specification.where(null);
 
         if (metricName != null) {
