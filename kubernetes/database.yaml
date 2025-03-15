@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: database
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telemetry-db
+  namespace: database
+  labels:
+    app: telemetry-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: telemetry-db
+  template:
+    metadata:
+      labels:
+        app: telemetry-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:14
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "multi_tenant_db"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "mypassword"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: telemetry-db
+  namespace: database
+spec:
+  selector:
+    app: telemetry-db
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  clusterIP: None
