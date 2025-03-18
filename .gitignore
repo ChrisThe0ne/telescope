@@ -50,3 +50,6 @@ application.yml
 
 # Ignore WSL-specific files
 .wslrun
+
+# Ignore kubernetes files
+/kubernetes/
